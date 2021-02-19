@@ -278,7 +278,11 @@ class EBSencrypt(object):
 
             #################################
 
-            #At this point .... we are ready to encrypt !  
+            #At this point .... we are ready to encrypt !
+
+            #save instance state
+            instance_state = self.ec2_client.describe_instance_status()
+            print(instance_state)
             
             #todo -  First, SHUT DOWN instance if running, to be on safe side
             self.stop_instance()
