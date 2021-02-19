@@ -40,6 +40,9 @@ The following is a summery of changes made:
     - The ability to encrypt all in an account volumes has been removed
     - Restarts instances after they've been stopped
 
+This script should only be run on running instances to ensure that stopped instances aren't started
+as this could incure unnecessary cost
+
 """
 #!/usr/bin/env python 
 
