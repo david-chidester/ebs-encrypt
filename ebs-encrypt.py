@@ -248,7 +248,7 @@ class EBSencrypt(object):
             instance.start() 
             # wait till stopped ...
             self.logger.info('-->Starting stopped instance: %s ... ' % instance.id)
-            self.waiters['instance_started'].wait (InstanceIds=[instance.id])
+            self.waiters['instance_running'].wait (InstanceIds=[instance.id])
             self.logger.info('\t... Started')
 
     def encrypt_instance(self, inst):
