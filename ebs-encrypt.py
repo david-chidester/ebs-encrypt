@@ -38,6 +38,7 @@ This script was forked and modified by David Chidester in February 2021 for use 
 The following is a summery of changes made:
     - Instance IDs are now reqired for the script to run
     - The ability to encrypt all in an account volumes has been removed
+    - Restarts instances after they've been stopped
 
 """
 #!/usr/bin/env python 
@@ -235,6 +236,18 @@ class EBSencrypt(object):
             self.waiters['instance_stopped'].wait (InstanceIds=[instance.id])
             self.logger.info('\t... Stopped')
 
+    def start_instance(self):
+        #todo  -- restart instance
+        instance = self.instance
+
+        # Only restarting if instance.state is in Stopped state (or Code == 80)
+        if (instance.state['Name'] == 'stopped'):
+            instance.start() 
+            # wait till stopped ...
+            self.logger.info('-->Starting stopped instance: %s ... ' % instance.id)
+            self.waiters['instance_started'].wait (InstanceIds=[instance.id])
+            self.logger.info('\t... Started')
+
     def encrypt_instance(self, inst):
         """ Encrypt the instance's volumes """
 
@@ -286,6 +299,9 @@ class EBSencrypt(object):
             self.swap_volumes(device, self.new_volume)
             # Don't forget to clean up the intermediary snapshots and old volume
             self.cleanup(device)
+            
+            # Restart instances after they've been stopped
+            self.start_instance()
 
             if delete_flag:
                 self.logger.info('->Put flag DeleteOnTermination on volume')
