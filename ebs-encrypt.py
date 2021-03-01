@@ -227,6 +227,14 @@ class EBSencrypt(object):
         self.waiters['snapshot_completed'].wait (SnapshotIds=[snapshot.id])
         return snapshot
 
+    def get_instance_state(self):
+        #save the state of the instance
+        instance = self.instance
+        if (instance.state['Name'] == 'running'):
+            return True
+        else:
+            return False
+
     def stop_instance(self):
         #todo  -- shutdown instance 
         instance = self.instance
@@ -280,10 +288,9 @@ class EBSencrypt(object):
 
             #At this point .... we are ready to encrypt !
 
-            #save instance state
-            instance_state = self.ec2_client.describe_instance_status()
-            print(instance_state)
-            
+            #save instace state so it can be turned back on if it was running
+            running = self.get_instance_state()
+
             #todo -  First, SHUT DOWN instance if running, to be on safe side
             self.stop_instance()
 
@@ -307,8 +314,9 @@ class EBSencrypt(object):
             # Don't forget to clean up the intermediary snapshots and old volume
             self.cleanup(device)
             
-            # Restart instances after they've been stopped
-            self.start_instance()
+            # Restart previously running instances after they've been stopped
+            if running:
+                self.start_instance()
 
             if delete_flag:
                 self.logger.info('->Put flag DeleteOnTermination on volume')
