@@ -276,6 +276,9 @@ class EBSencrypt(object):
                 self.logger.warning(msg)
                 continue
 
+        #save instace state so it can be turned back on if it was running
+        running = self.get_instance_state()
+         
         #Check to see if already encrypted
         for device in self.instance.volumes.all():
             if device.encrypted:
@@ -287,10 +290,6 @@ class EBSencrypt(object):
             #################################
 
             #At this point .... we are ready to encrypt !
-
-            #save instace state so it can be turned back on if it was running
-            running = self.get_instance_state()
-
             #todo -  First, SHUT DOWN instance if running, to be on safe side
             self.stop_instance()
 
@@ -313,15 +312,15 @@ class EBSencrypt(object):
             self.swap_volumes(device, self.new_volume)
             # Don't forget to clean up the intermediary snapshots and old volume
             self.cleanup(device)
-            
-            # Restart previously running instances after they've been stopped
-            if running:
-                self.start_instance()
 
             if delete_flag:
                 self.logger.info('->Put flag DeleteOnTermination on volume')
                 self.instance.modify_attribute(BlockDeviceMappings=[flag_on])
 
+        # Restart previously running instances after they've been stopped
+        if running:
+            self.start_instance()
+        
         self.logger.info('Done with instance: %s\n' % self.instance.id)
 
     def encrypt(self):
