@@ -38,7 +38,7 @@ This script was forked and modified by David Chidester in February 2021 for use 
 The following is a summery of changes made:
     - Instance IDs are now reqired for the script to run
     - The ability to encrypt all in an account volumes has been removed
-    - Restarts instances after they've been stopped
+    - Restores instances to the state they were in before running the script (turns instances that were runninh back on)
 
 This script should only be run on running instances to ensure that stopped instances aren't started
 as this could incure unnecessary cost
